@@ -57,23 +57,33 @@ class ReplyViewSet(viewsets.ModelViewSet):
 class ThreadReactionsViewSet(ListModelMixin, viewsets.GenericViewSet):
     queryset = ThreadReactions.objects.all()
     serializer_class = ThreadReactionsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_thread(self):
+        try:
+            return Thread.objects.get(id=self.kwargs["threads_pk"])
+        except Thread.DoesNotExist:
+            raise PermissionDenied("Thread not found")
+
     def get_queryset(self, *args, **kwargs):
-        return ThreadReactions.objects.filter(thread=self.kwargs["threads_pk"])
+        return ThreadReactions.objects.filter(thread=self.get_thread())
+
     @action(detail=False, methods=["post"],url_path="react")
     def react(self, request, *args, **kwargs):
         reaction = request.data.get("reaction")
-        thread = Thread.objects.get(id=self.kwargs["threads_pk"])
+        thread = self.get_thread()
         reaction_obj, created = ThreadReactions.objects.update_or_create(
             thread=thread,
             user=self.request.user,
             defaults={'reaction': reaction}
         )
         return Response({"reaction": reaction})
+
     @action(detail=False, methods=["get"],url_path="reactions-count")
     def get_reactions_count(self, request, *args, **kwargs):
        reaction_counts = (
             ThreadReactions.objects
-            .filter(thread=self.kwargs["threads_pk"])
+            .filter(thread=self.get_thread())
             .values('reaction')
             .annotate(count=Count('id'))
         )
