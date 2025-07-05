@@ -7,7 +7,6 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Count
-from rest_framework.mixins import ListModelMixin
 
 
 
@@ -42,6 +41,34 @@ class ThreadViewSet(viewsets.ModelViewSet):
         check_permission(request.user, self.get_object())
         return super().destroy(request, *args, **kwargs)
 
+
+    @action(detail=True, methods=["get"],url_path="reactions")
+    def get_reactions(self, *args, **kwargs):
+        results= ThreadReactions.objects.filter(thread=self.get_object())
+        return Response(ThreadReactionsSerializer(results, many=True).data)
+
+
+    @action(detail=True, methods=["post"],url_path="react")
+    def react(self, request, *args, **kwargs):
+        reaction = request.data.get("reaction")
+        thread = self.get_object()
+        reaction_obj, created = ThreadReactions.objects.update_or_create(
+            thread=thread,
+            user=self.request.user,
+            defaults={'reaction': reaction}
+        )
+        return Response({"reaction": reaction})
+
+    @action(detail=True, methods=["get"],url_path="reactions-count")
+    def get_reactions_count(self, request, *args, **kwargs):
+       reaction_counts = (
+            ThreadReactions.objects
+            .filter(thread=self.get_object())
+            .values('reaction')
+            .annotate(count=Count('id'))
+        )
+       return Response(reaction_counts)
+
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -54,40 +81,10 @@ class ReplyViewSet(viewsets.ModelViewSet):
     queryset = Reply.objects.all()
     serializer_class = ReplySerializer
 
-class ThreadReactionsViewSet(ListModelMixin, viewsets.GenericViewSet):
-    queryset = ThreadReactions.objects.all()
-    serializer_class = ThreadReactionsSerializer
-    permission_classes = [IsAuthenticated]
 
-    def get_thread(self):
-        try:
-            return Thread.objects.get(id=self.kwargs["threads_pk"])
-        except Thread.DoesNotExist:
-            raise PermissionDenied("Thread not found")
 
-    def get_queryset(self, *args, **kwargs):
-        return ThreadReactions.objects.filter(thread=self.get_thread())
 
-    @action(detail=False, methods=["post"],url_path="react")
-    def react(self, request, *args, **kwargs):
-        reaction = request.data.get("reaction")
-        thread = self.get_thread()
-        reaction_obj, created = ThreadReactions.objects.update_or_create(
-            thread=thread,
-            user=self.request.user,
-            defaults={'reaction': reaction}
-        )
-        return Response({"reaction": reaction})
 
-    @action(detail=False, methods=["get"],url_path="reactions-count")
-    def get_reactions_count(self, request, *args, **kwargs):
-       reaction_counts = (
-            ThreadReactions.objects
-            .filter(thread=self.get_thread())
-            .values('reaction')
-            .annotate(count=Count('id'))
-        )
-       return Response(reaction_counts)
 
 class CommentReactionsViewSet(viewsets.ModelViewSet):
     queryset = CommentReactions.objects.all()
