@@ -35,3 +35,6 @@ urlpatterns += [
     path("api/core/", include("core.urls")),
     path("api/users/", include("users.urls")),
 ]
+urlpatterns += [
+    path("api/threads/", include("threads.urls")),
+]

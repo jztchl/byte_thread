@@ -562,6 +562,21 @@ python-jose = ["python-jose (==3.3.0)"]
 test = ["cryptography", "freezegun", "pytest", "pytest-cov", "pytest-django", "pytest-xdist", "tox"]
 
 [[package]]
+name = "drf-nested-routers"
+version = "0.94.2"
+description = "Nested resources for the Django Rest Framework"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "drf_nested_routers-0.94.2-py2.py3-none-any.whl", hash = "sha256:74dbdceeae2a32f8668ba0df8e3eeabeb9b1c64d2621d914901ae653e4e3bcff"},
+    {file = "drf_nested_routers-0.94.2.tar.gz", hash = "sha256:aa70923b716dc47cd93b8129b06be6c15706b405cf5f718f59cb8eed01de59cc"},
+]
+
+[package.dependencies]
+Django = ">=4.2"
+djangorestframework = ">=3.15.0"
+
+[[package]]
 name = "filelock"
 version = "3.18.0"
 description = "A platform independent file lock."
@@ -1322,4 +1337,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e1143ee36a8bd596d1289217882ceff0b01d472c96d4060d4125f23aa245ca87"
+content-hash = "5bdf976970333b158e096b0257f89b5f99bfd1f9b60e42d492fac49d76581968"

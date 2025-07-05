@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "search",
     "snippets",
     "feeds",
+    "threads",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework.authtoken",
+    "rest_framework_nested",
     # Required by dj-rest-auth
     "dj_rest_auth",
     "dj_rest_auth.registration",
