@@ -1,7 +1,7 @@
 # Create your views here.
 from rest_framework import viewsets
 from .models import Thread, ThreadReactions, Comment, CommentReactions, Reply, ReplyReactions
-from .serializers import ThreadSerializer, ThreadListSerializer, CommentSerializer, ReplySerializer, ThreadReactionsSerializer, CommentReactionsSerializer, ReplyReactionsSerializer
+from .serializers import ThreadSerializer, ThreadListSerializer, CommentSerializer, ReplySerializer, ThreadReactionsSerializer, CommentReactionsSerializer, ReplyReactionsSerializer,ReactionSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
@@ -30,9 +30,6 @@ class ThreadViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    def get_serializer_context(self):
-        return {"request": self.request}
-
     def update(self, request, *args, **kwargs):
         check_permission(request.user, self.get_object())
         return super().update(request, *args, **kwargs)
@@ -50,14 +47,16 @@ class ThreadViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"],url_path="react")
     def react(self, request, *args, **kwargs):
-        reaction = request.data.get("reaction")
+        reaction = ReactionSerializer(data=request.data)
+        if not reaction.is_valid():
+            raise PermissionDenied("reaction is required")
         thread = self.get_object()
         reaction_obj, created = ThreadReactions.objects.update_or_create(
             thread=thread,
             user=self.request.user,
-            defaults={'reaction': reaction}
+            defaults={'reaction': reaction.validated_data['reaction']}
         )
-        return Response({"reaction": reaction})
+        return Response({"reaction": reaction.validated_data['reaction']})
 
     @action(detail=True, methods=["get"],url_path="reactions-count")
     def get_reactions_count(self, request, *args, **kwargs):
@@ -72,9 +71,56 @@ class ThreadViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_thread(self):
+        try:
+            return Thread.objects.get(id=self.kwargs["threads_pk"])
+        except Thread.DoesNotExist:
+            raise PermissionDenied("Thread not found")
 
     def get_queryset(self, *args, **kwargs):
-        return Comment.objects.filter(thread=self.kwargs["threads_pk"])
+        return Comment.objects.filter(thread=self.get_thread())
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, thread=self.get_thread())
+
+    def update(self, request, *args, **kwargs):
+        check_permission(request.user, self.get_object())
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        check_permission(request.user, self.get_object())
+        return super().destroy(request, *args, **kwargs)
+
+
+    @action(detail=True, methods=["get"],url_path="reactions")
+    def get_reactions(self, *args, **kwargs):
+        results= CommentReactions.objects.filter(comment=self.get_object())
+        return Response(CommentReactionsSerializer(results, many=True).data)
+
+    @action(detail=True, methods=["post"],url_path="react")
+    def react(self, request, *args, **kwargs):
+        reaction = ReactionSerializer(data=request.data)
+        if not reaction.is_valid():
+            raise PermissionDenied("reaction is required")
+        comment = self.get_object()
+        reaction_obj, created = CommentReactions.objects.update_or_create(
+            comment=comment,
+            user=self.request.user,
+            defaults={'reaction': reaction.validated_data['reaction']}
+        )
+        return Response({"reaction": reaction.validated_data['reaction']})
+
+    @action(detail=True, methods=["get"],url_path="reactions-count")
+    def get_reactions_count(self, request, *args, **kwargs):
+       reaction_counts = (
+            CommentReactions.objects
+            .filter(comment=self.get_object())
+            .values('reaction')
+            .annotate(count=Count('id'))
+        )
+       return Response(reaction_counts)
 
 
 class ReplyViewSet(viewsets.ModelViewSet):
@@ -83,12 +129,6 @@ class ReplyViewSet(viewsets.ModelViewSet):
 
 
 
-
-
-
-class CommentReactionsViewSet(viewsets.ModelViewSet):
-    queryset = CommentReactions.objects.all()
-    serializer_class = CommentReactionsSerializer
 
 class ReplyReactionsViewSet(viewsets.ModelViewSet):
     queryset = ReplyReactions.objects.all()
