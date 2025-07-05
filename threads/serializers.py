@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from users.serializers import UserListSerializer
 from .models import Thread, ThreadReactions, Comment, CommentReactions, Reply, ReplyReactions
 from core.serializers import ImageSerializer
 from core.models import Image
@@ -16,6 +18,7 @@ class ThreadSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["images"] = ImageSerializer(instance.images.all(), many=True).data
+        representation["user"] = UserListSerializer(instance.user).data
         return representation
 
 
@@ -51,7 +54,12 @@ class ReplySerializer(serializers.ModelSerializer):
 class ThreadReactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ThreadReactions
-        fields = '__all__'
+        fields = ['reaction','thread','user']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["user"] = UserListSerializer(instance.user).data
+        return representation
 
 class CommentReactionsSerializer(serializers.ModelSerializer):
     class Meta:

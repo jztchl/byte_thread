@@ -14,7 +14,7 @@ from rest_framework.mixins import ListModelMixin
 def check_permission(user,object):
     if user == object.user:
         return True
-    return PermissionDenied("You are not allowed to perform this action")
+    raise PermissionDenied("You are not allowed to perform this action")
 
 class ThreadViewSet(viewsets.ModelViewSet):
     queryset = Thread.objects.all()
