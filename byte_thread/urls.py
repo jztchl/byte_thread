@@ -27,6 +27,11 @@ urlpatterns += [
     path("auth/", include("dj_rest_auth.urls")),  # login/logout/password reset
     path("auth/registration/", include("dj_rest_auth.registration.urls")),  # register
     path(
-        "auth/github/", include("allauth.socialaccount.providers.github.urls")
+        "auth/social/", include("allauth.socialaccount.providers.github.urls")
     ),  # social login
+]
+
+urlpatterns += [
+    path("api/core/", include("core.urls")),
+    path("api/users/", include("users.urls")),
 ]

@@ -16,6 +16,8 @@ channels-redis = "^4.2.1"
 djangorestframework-simplejwt = "^5.5.0"
 dj-rest-auth = "^7.0.1"
 django-allauth = "^65.9.0"
+django-extensions = "^4.1"
+pillow = "^11.3.0"
 
 
 [build-system]

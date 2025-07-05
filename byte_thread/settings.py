@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,13 +28,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-
+AUTH_USER_MODEL = "users.User"
 # Application definition
 
 INSTALLED_APPS = [
     "rest_framework",
     "daphne",
     "core",
+    "users",
     "chat",
     "notifications",
     "projects",
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -156,3 +159,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET_KEY = os.getenv("GITHUB_CLIENT_SECRET_KEY")
