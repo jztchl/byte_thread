@@ -16,6 +16,7 @@ class Reactions(models.TextChoices):
    SAD = "sad", "Sad"
    ANGRY = "angry", "Angry"
    LAUGH = "laugh", "Laugh"
+   NONE = "none", "None"
 
 
 class Thread(SoftDelete,Timestamp):
