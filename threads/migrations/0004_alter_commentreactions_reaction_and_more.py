@@ -6,23 +6,62 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('threads', '0003_comment_is_deleted_reply_is_deleted_and_more'),
+        ("threads", "0003_comment_is_deleted_reply_is_deleted_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commentreactions',
-            name='reaction',
-            field=models.CharField(choices=[('like', 'Like'), ('dislike', 'Dislike'), ('love', 'Love'), ('hate', 'Hate'), ('wow', 'Wow'), ('sad', 'Sad'), ('angry', 'Angry'), ('laugh', 'Laugh'), ('none', 'None')], max_length=10),
+            model_name="commentreactions",
+            name="reaction",
+            field=models.CharField(
+                choices=[
+                    ("like", "Like"),
+                    ("dislike", "Dislike"),
+                    ("love", "Love"),
+                    ("hate", "Hate"),
+                    ("wow", "Wow"),
+                    ("sad", "Sad"),
+                    ("angry", "Angry"),
+                    ("laugh", "Laugh"),
+                    ("none", "None"),
+                ],
+                max_length=10,
+            ),
         ),
         migrations.AlterField(
-            model_name='replyreactions',
-            name='reaction',
-            field=models.CharField(choices=[('like', 'Like'), ('dislike', 'Dislike'), ('love', 'Love'), ('hate', 'Hate'), ('wow', 'Wow'), ('sad', 'Sad'), ('angry', 'Angry'), ('laugh', 'Laugh'), ('none', 'None')], max_length=10),
+            model_name="replyreactions",
+            name="reaction",
+            field=models.CharField(
+                choices=[
+                    ("like", "Like"),
+                    ("dislike", "Dislike"),
+                    ("love", "Love"),
+                    ("hate", "Hate"),
+                    ("wow", "Wow"),
+                    ("sad", "Sad"),
+                    ("angry", "Angry"),
+                    ("laugh", "Laugh"),
+                    ("none", "None"),
+                ],
+                max_length=10,
+            ),
         ),
         migrations.AlterField(
-            model_name='threadreactions',
-            name='reaction',
-            field=models.CharField(choices=[('like', 'Like'), ('dislike', 'Dislike'), ('love', 'Love'), ('hate', 'Hate'), ('wow', 'Wow'), ('sad', 'Sad'), ('angry', 'Angry'), ('laugh', 'Laugh'), ('none', 'None')], max_length=10),
+            model_name="threadreactions",
+            name="reaction",
+            field=models.CharField(
+                choices=[
+                    ("like", "Like"),
+                    ("dislike", "Dislike"),
+                    ("love", "Love"),
+                    ("hate", "Hate"),
+                    ("wow", "Wow"),
+                    ("sad", "Sad"),
+                    ("angry", "Angry"),
+                    ("laugh", "Laugh"),
+                    ("none", "None"),
+                ],
+                max_length=10,
+            ),
         ),
     ]

@@ -1,10 +1,10 @@
 from django.utils import timezone
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
-from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .models import Followers, User
 from .serializers import (
@@ -13,7 +13,6 @@ from .serializers import (
     UserListSerializer,
     UserSerializer,
 )
-
 
 
 class UserViewSet(ModelViewSet):
@@ -80,21 +79,23 @@ class SuggestedUsersView(GenericViewSet, ListModelMixin):
 
         # 1. Users you already follow
         already_following_ids = Followers.objects.filter(
-            follower=user,
-            unfollowed_at__isnull=True
+            follower=user, unfollowed_at__isnull=True
         ).values_list("following_id", flat=True)
 
         # 2. Your followers
         your_followers_ids = Followers.objects.filter(
-            following=user,
-            unfollowed_at__isnull=True
+            following=user, unfollowed_at__isnull=True
         ).values_list("follower_id", flat=True)
 
         # 3. People your followers are following
-        friends_of_friends_ids = Followers.objects.filter(
-            follower_id__in=your_followers_ids,
-            unfollowed_at__isnull=True
-        ).exclude(
-            following_id__in=list(already_following_ids) + [user.id]
-        ).order_by('?')[:20].values("following_id")
-        return User.objects.filter(id__in=friends_of_friends_ids).order_by('-date_joined')
+        friends_of_friends_ids = (
+            Followers.objects.filter(
+                follower_id__in=your_followers_ids, unfollowed_at__isnull=True
+            )
+            .exclude(following_id__in=list(already_following_ids) + [user.id])
+            .order_by("?")[:20]
+            .values("following_id")
+        )
+        return User.objects.filter(id__in=friends_of_friends_ids).order_by(
+            "-date_joined"
+        )

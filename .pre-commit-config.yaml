@@ -2,7 +2,7 @@ default_language_version:
     python: python3.11
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v5.0.0
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
@@ -23,18 +23,18 @@ repos:
         args: [--remove-all-unused-imports, --in-place]
 
   # - repo: https://github.com/pycqa/isort
-  #   rev: 5.12.0
+  #   rev: 6.0.1
   #   hooks:
   #     - id: isort
   #       name: isort (python)
 
   # - repo: https://github.com/psf/black
-  #   rev: 24.10.0
+  #   rev: 25.1.0
   #   hooks:
   #   - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
+    rev: v0.12.2
     hooks:
       - id: ruff
 
@@ -42,3 +42,6 @@ repos:
     rev: v0.4.0
     hooks:
       - id: check-absent-migrations
+        name: Check absent migrations
+        entry: python manage.py makemigrations --check --dry-run
+        language: system

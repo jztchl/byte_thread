@@ -38,3 +38,6 @@ urlpatterns += [
 urlpatterns += [
     path("api/threads/", include("threads.urls")),
 ]
+urlpatterns += [
+    path("api/feeds/", include("feeds.urls")),
+]

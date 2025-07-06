@@ -19,6 +19,7 @@ django-allauth = "^65.9.0"
 django-extensions = "^4.1"
 pillow = "^11.3.0"
 drf-nested-routers = "^0.94.2"
+ruff = "^0.12.2"
 
 
 [build-system]
