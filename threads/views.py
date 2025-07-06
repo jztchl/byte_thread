@@ -24,8 +24,6 @@ class ThreadViewSet(viewsets.ModelViewSet):
             return ThreadListSerializer
         return ThreadSerializer
 
-    def get_queryset(self):
-        return Thread.objects.filter()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -60,13 +58,13 @@ class ThreadViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"],url_path="reactions-count")
     def get_reactions_count(self, request, *args, **kwargs):
-       reaction_counts = (
+        reaction_counts = (
             ThreadReactions.objects
             .filter(thread=self.get_object())
             .values('reaction')
             .annotate(count=Count('id'))
         )
-       return Response(reaction_counts)
+        return Response(reaction_counts)
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
