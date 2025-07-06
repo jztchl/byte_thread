@@ -1,0 +1,8 @@
+.env
+*pyc
+__pycache__/
+**/__pycache__/
+*.pyc
+*/__pycache__/
+byte_thread.db
+db.sqlite3
