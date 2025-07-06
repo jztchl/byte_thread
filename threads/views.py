@@ -126,6 +126,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 class ReplyViewSet(viewsets.ModelViewSet):
     queryset = Reply.objects.all()
     serializer_class = ReplySerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
         return Reply.objects.filter(comment=self.get_comment())
