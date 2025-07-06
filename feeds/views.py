@@ -31,8 +31,6 @@ class FeedView(viewsets.GenericViewSet, ListModelMixin):
 
         #make table to mute and block users
 
-        list_of_ids = list(followed_user_ids) + [user.id]
-
         qs=Thread.objects.filter(
             user__in=list_of_ids
         ).select_related("user").prefetch_related("images","comments","reactions").order_by("-created_at")
