@@ -1,7 +1,9 @@
 from rest_framework import serializers
+
+from core.serializers import ImageSerializer
 from threads.models import Thread
 from users.serializers import UserListSerializer
-from core.serializers import ImageSerializer
+
 
 class FeedThreadSerializer(serializers.ModelSerializer):
     user = UserListSerializer(read_only=True)
@@ -10,7 +12,16 @@ class FeedThreadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Thread
-        fields = ["id", "title", "content", "images", "created_at", "user", "reactions_count", "comments_count"]
+        fields = [
+            "id",
+            "title",
+            "content",
+            "images",
+            "created_at",
+            "user",
+            "reactions_count",
+            "comments_count",
+        ]
 
     def get_reactions_count(self, obj):
         return obj.reactions.count()

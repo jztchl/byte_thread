@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('threads', '0002_thread_title'),
+        ("threads", "0002_thread_title"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='comment',
-            name='is_deleted',
+            model_name="comment",
+            name="is_deleted",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='reply',
-            name='is_deleted',
+            model_name="reply",
+            name="is_deleted",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='thread',
-            name='is_deleted',
+            model_name="thread",
+            name="is_deleted",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     "users",
     "chat",
     "notifications",
-    "projects",
-    "search",
     "snippets",
     "feeds",
     "threads",
@@ -96,7 +94,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "user": "1000/day",
         "anon": "100/hour",
-    }
+    },
 }
 
 
