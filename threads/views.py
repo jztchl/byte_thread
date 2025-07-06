@@ -127,9 +127,50 @@ class ReplyViewSet(viewsets.ModelViewSet):
     queryset = Reply.objects.all()
     serializer_class = ReplySerializer
 
+    def get_queryset(self, *args, **kwargs):
+        return Reply.objects.filter(comment=self.get_comment())
 
+    def get_comment(self):
+        try:
+            return Comment.objects.get(id=self.kwargs["comments_pk"])
+        except Comment.DoesNotExist:
+            raise PermissionDenied("Comment not found")
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, comment=self.get_comment())
 
-class ReplyReactionsViewSet(viewsets.ModelViewSet):
-    queryset = ReplyReactions.objects.all()
-    serializer_class = ReplyReactionsSerializer
+    def update(self, request, *args, **kwargs):
+        check_permission(request.user, self.get_object())
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        check_permission(request.user, self.get_object())
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get"],url_path="reactions")
+    def get_reactions(self, *args, **kwargs):
+        results= ReplyReactions.objects.filter(reply=self.get_object())
+        return Response(ReplyReactionsSerializer(results, many=True).data)
+
+    @action(detail=True, methods=["post"],url_path="react")
+    def react(self, request, *args, **kwargs):
+        reaction = ReactionSerializer(data=request.data)
+        if not reaction.is_valid():
+            raise PermissionDenied("reaction is required")
+        reply = self.get_object()
+        reaction_obj, created = ReplyReactions.objects.update_or_create(
+            reply=reply,
+            user=self.request.user,
+            defaults={'reaction': reaction.validated_data['reaction']}
+        )
+        return Response({"reaction": reaction.validated_data['reaction']})
+
+    @action(detail=True, methods=["get"],url_path="reactions-count")
+    def get_reactions_count(self, request, *args, **kwargs):
+       reaction_counts = (
+            ReplyReactions.objects
+            .filter(reply=self.get_object())
+            .values('reaction')
+            .annotate(count=Count('id'))
+        )
+       return Response(reaction_counts)
