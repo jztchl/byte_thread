@@ -43,10 +43,6 @@ class ThreadListSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
 class CommentSerializer(serializers.ModelSerializer):
     content = serializers.CharField(required=False)
     image = serializers.PrimaryKeyRelatedField(queryset=Image.objects.all(), required=False)
@@ -79,14 +75,25 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
 class ReplySerializer(serializers.ModelSerializer):
+    content = serializers.CharField(required=False)
+    image = serializers.PrimaryKeyRelatedField(queryset=Image.objects.all(), required=False)
     class Meta:
         model = Reply
         fields = '__all__'
+        read_only_fields = ['user', 'comment']
+
+    def validate(self, attrs):
+        type=attrs.get("comment_type")
+        if type == CommentType.IMAGE:
+            attrs["images"] = attrs.pop("images",None)
+            if not attrs["images"]:
+                raise serializers.ValidationError({"images": "This field is required."})
+        elif type == CommentType.TEXT:
+            attrs["content"] = attrs.pop("content",None)
+            if not attrs["content"]:
+                raise serializers.ValidationError({"content": "This field is required."})
+        return super().validate(attrs)
 
 
 class ReactionSerializer(serializers.Serializer):
@@ -116,4 +123,9 @@ class CommentReactionsSerializer(serializers.ModelSerializer):
 class ReplyReactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReplyReactions
-        fields = '__all__'
+        fields = ['reaction','reply','user']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["user"] = UserListSerializer(instance.user).data
+        return representation
