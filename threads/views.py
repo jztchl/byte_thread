@@ -114,13 +114,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"],url_path="reactions-count")
     def get_reactions_count(self, request, *args, **kwargs):
-       reaction_counts = (
+        reaction_counts = (
             CommentReactions.objects
             .filter(comment=self.get_object())
             .values('reaction')
             .annotate(count=Count('id'))
         )
-       return Response(reaction_counts)
+        return Response(reaction_counts)
 
 
 class ReplyViewSet(viewsets.ModelViewSet):
@@ -168,10 +168,10 @@ class ReplyViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"],url_path="reactions-count")
     def get_reactions_count(self, request, *args, **kwargs):
-       reaction_counts = (
+        reaction_counts = (
             ReplyReactions.objects
             .filter(reply=self.get_object())
             .values('reaction')
             .annotate(count=Count('id'))
         )
-       return Response(reaction_counts)
+        return Response(reaction_counts)
