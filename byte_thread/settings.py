@@ -74,6 +74,15 @@ ROOT_URLCONF = "byte_thread.urls"
 
 ASGI_APPLICATION = "byte_thread.asgi.application"
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
 SOCIALACCOUNT_PROVIDERS = {
     "github": {
         "SCOPE": ["user", "repo"],
