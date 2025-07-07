@@ -105,3 +105,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def mark_delivered(self, message_ids):
         msg = Message.objects.filter(id__in=message_ids)
         msg.update(delivered=True)
+
+
+# next we need to wire the message status system here!!
