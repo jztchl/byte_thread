@@ -6,12 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .models import Followers, User
+from .models import Followers, User, Block
 from .serializers import (
     FollowSerializer,
     UserDetailForOthersSerializer,
     UserListSerializer,
     UserSerializer,
+    BlockSerializer,
+    MuteSerializer,
 )
 
 
@@ -26,6 +28,9 @@ class UserViewSet(ModelViewSet):
         elif self.action == "list":
             return UserListSerializer
         return UserSerializer
+
+    def get_serializer_context(self):
+        return {"request": self.request}
 
     def create(self, request, *args, **kwargs):
         raise PermissionDenied("You can only create a user through registration")
@@ -43,6 +48,29 @@ class UserViewSet(ModelViewSet):
     @action(detail=False, methods=["get"])
     def me(self, request):
         return Response(UserSerializer(request.user).data)
+
+    @action(detail=False, methods=["post"])
+    def block(self, request):
+        serializer = BlockSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(blocker=request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["post"])
+    def mute(self, request):
+        serializer = MuteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(muter=request.user)
+        return Response(serializer.data)
+
+
+    @action(detail=False, methods=["get"])
+    def block_list(self, request):
+        return Response(BlockSerializer(request.user.blockers.all(), many=True).data)
+
+    @action(detail=False, methods=["get"])
+    def mute_list(self, request):
+        return Response(MuteSerializer(request.user.muters.all(), many=True).data)
 
 
 class FollowViewSet(ModelViewSet):
@@ -76,6 +104,9 @@ class SuggestedUsersView(GenericViewSet, ListModelMixin):
 
     def get_queryset(self):
         user = self.request.user
+        blocked_user_ids = Block.objects.filter(
+            blocker=user, unblocked_at__isnull=True
+        ).values_list("blocked_id", flat=True)
 
         # 1. Users you already follow
         already_following_ids = Followers.objects.filter(
@@ -92,7 +123,7 @@ class SuggestedUsersView(GenericViewSet, ListModelMixin):
             Followers.objects.filter(
                 follower_id__in=your_followers_ids, unfollowed_at__isnull=True
             )
-            .exclude(following_id__in=list(already_following_ids) + [user.id])
+            .exclude(following_id__in=list(already_following_ids) + [user.id]+list(blocked_user_ids))
             .order_by("?")[:20]
             .values("following_id")
         )

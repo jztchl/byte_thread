@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from threads.models import Thread
-from users.models import Followers
+from users.models import Followers,Mute
 
 from .serializers import (
     FeedThreadSerializer,
@@ -31,7 +31,10 @@ class FeedView(viewsets.GenericViewSet, ListModelMixin):
         followed_user_ids = Followers.objects.filter(
             follower=user, unfollowed_at__isnull=True
         ).values_list("following_id", flat=True)
-        list_of_ids = list(followed_user_ids) + [user.id]
+        muted_user_ids = Mute.objects.filter(
+            muter=user, unmuted_at__isnull=True
+        ).values_list("muted_id", flat=True)
+        list_of_ids = list(followed_user_ids) + [user.id]-list(muted_user_ids)
 
         # make table to mute and block users
 
